@@ -16,3 +16,4 @@ They have been developed and tested using the following packages/tools:
 ```
 samtools mpileup -aa -f genome.fasta rmdup.bam |mpileup2readcounts |counts2mutation.py >mutation.xls
 ```
++ result：[mutation.xls](https://github.com/zxgsy520/virusreseq/blob/main/docs/mutation.xls)
