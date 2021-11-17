@@ -10,3 +10,9 @@ They have been developed and tested using the following packages/tools:
 + [samtools](https://github.com/samtools/samtools) (version 1.12-15)
 + [bwa](https://github.com/lh3/bwa) (version 0.7.17)
 + [snippy](https://github.com/tseemann/snippy) (version 4.5.9)
+
+## Usage
+### Obtain the mutation information of a locus
+```
+samtools mpileup -aa -f genome.fasta rmdup.bam |mpileup2readcounts |counts2mutation.py >mutation.xls
+```
