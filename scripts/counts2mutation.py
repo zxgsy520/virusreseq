@@ -9,7 +9,7 @@ import argparse
 
 LOG = logging.getLogger(__name__)
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __author__ = ("Xingguo Zhang",)
 __email__ = "invicoun@foxmail.com"
 __all__ = []
@@ -84,6 +84,7 @@ def counts2mutation(file, mincount=3):
         fh = read_tsv(file, '\t')
     else:
         fh = read_stdin('\t')
+    snp = 0
 
     print("""#Reference id\tPosition\tReference base\tReference depth\tDepth\
 \tA\tC\tG\tT\tMaxmutation rate(‰)""")
@@ -94,6 +95,8 @@ def counts2mutation(file, mincount=3):
         rd, a, c, g, t, tall, mut = filter_count(int(line[2]), base, int(line[6]),
                                                  int(line[7]), int(line[8]),
                                                  int(line[9]), mincount)
+        if mut > 0:
+            snp += 1
 
         print("""{ref}\t{pos}\t{base}\t{refd}\t{dp}\t{a}\t{c}\t{g}\t{t}\
 \t{mut:.2f}""".format(
@@ -108,6 +111,7 @@ def counts2mutation(file, mincount=3):
             t=t,
             mut=mut)
         )
+    LOG.info("The number of mutation sites is: %s" % snp)
 
     return 0
 
@@ -116,6 +120,8 @@ def add_hlep_args(parser):
 
     parser.add_argument('input', metavar='FILE', type=str,
         help='Input the bam file after genome alignment.')
+    parser.add_argument('-mc', '--mincount', metavar='INT', type=int, default=3,
+        help='Filter base support number.')
 
     return parser
 
@@ -141,7 +147,7 @@ contact:  %s <%s>\
 
     args = add_hlep_args(parser).parse_args()
 
-    counts2mutation(args.input)
+    counts2mutation(args.input, args.mincount)
 
 
 if __name__ == "__main__":
