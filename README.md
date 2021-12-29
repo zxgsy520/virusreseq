@@ -21,6 +21,7 @@ samtools mpileup -aa -f genome.fasta rmdup.bam |mpileup2readcounts |counts2mutat
 result：
 + [mutation.xls](https://github.com/zxgsy520/virusreseq/blob/main/docs/mutation.xls)
 + [saturation_curve.csv](https://github.com/zxgsy520/virusreseq/blob/main/docs/saturation_curve.csv)
+
 多序列比对
 ```
 muscle -align seq.fasta -output seq.aln.fasta
