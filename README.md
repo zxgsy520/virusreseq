@@ -16,7 +16,10 @@ They have been developed and tested using the following packages/tools:
 ## Usage
 ### Obtain the mutation information of a locus
 ```
-samtools mpileup -aa -f genome.fasta rmdup.bam |mpileup2readcounts |counts2mutation.py >mutation.xls
+lofreq call --call-indels -f genome.fasta -o mutation.vcf rmdup.bam #使用lofreq获得病毒的低频突变信息
+samtools mpileup -aa -f genome.fasta rmdup.bam |mpileup2readcounts |counts2mutation.py >mutation.xls   #统计病毒每个位点的深度和对应的各种碱基的数目。
+merge_lofreq.py *.vcf >merge_lofreq_vcf.tsv  #合并多个lofreq的突变文件
+venn_flower.R lofreq_distribution.tsv lofreq  #根据merge_lofreq.py的结果绘制共有和特有突变的venn图或者花瓣图
 ```
 result：
 + [mutation.xls](https://github.com/zxgsy520/virusreseq/blob/main/docs/mutation.xls)
