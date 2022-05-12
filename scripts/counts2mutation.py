@@ -9,7 +9,7 @@ import argparse
 
 LOG = logging.getLogger(__name__)
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __author__ = ("Xingguo Zhang",)
 __email__ = "invicoun@foxmail.com"
 __all__ = []
@@ -91,7 +91,7 @@ def counts2mutation(file, mincount=3):
     for line in fh:
         if line[0] == "chr":
             continue
-        base = line[3]
+        base = line[3].upper()
         rd, a, c, g, t, tall, mut = filter_count(int(line[2]), base, int(line[6]),
                                                  int(line[7]), int(line[8]),
                                                  int(line[9]), mincount)
