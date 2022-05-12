@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 LOG = logging.getLogger(__name__)
 
-__version__ = "1.0.1"
+__version__ = "1.0.0"
 __author__ = ("Xingguo Zhang",)
 __email__ = "invicoun@foxmail.com"
 __all__ = []
@@ -40,20 +40,38 @@ def read_tsv(file, sep=None):
     fp.close()
 
 
-def read_lofreq_cvf(file):
+def get_mutated_base(ref, nutlist):
+
+    data = {1:"A", 2:"C", 3:"G", 4:"T"}
+
+    r = ""
+    n = 0
+    for i in nutlist:
+        n += 1
+        alt = data[n]
+        if alt == ref:
+            continue
+        if float(i) <= 0:
+            continue
+        r = "%s,%s" % (r, alt)
+
+    return r.strip(",")
+
+
+def read_mutation_table(file, freq=0):
 
     r = {}
-    n = 0
+
     for line in read_tsv(file, "\t"):
+        if float(line[9]) <= freq:
+            continue
         if line[0] not in r:
             r[line[0]] = {}
-        if int(line[1]) not in r[line[0]]:
-            n += 1
-            r[line[0]][int(line[1])] = [line[3], line[4]]
-        else:
-            r[line[0]][int(line[1])][1] = "%s,%s" % (r[line[0]][int(line[1])][1], line[4])
+        ref = line[2].upper()
+        alt = get_mutated_base(ref, line[5:9])
+        r[line[0]][int(line[1])] = [ref, alt]
 
-    return r, n
+    return r
 
 
 def get_prefix(file):
@@ -68,7 +86,7 @@ def get_prefix(file):
     return prefix
 
 
-def merge_lofreq(files):
+def merge_mutation(files, freq=0):
 
     data = {}
     indexs = {}
@@ -80,8 +98,7 @@ def merge_lofreq(files):
             prefix = prefix.split("_", 1)[-1]
         samples.append(prefix)
 
-        r, mutnum = read_lofreq_cvf(file)
-        LOG.info("%s\t%s" % (prefix, mutnum))
+        r = read_mutation_table(file, freq)
         data[prefix] = r
         for i in r:
             if i not in indexs:
@@ -89,7 +106,7 @@ def merge_lofreq(files):
             indexs[i] = indexs[i] | set(r[i].keys())
 
     print("#CHROM\tPOS\tREF\t%s" % "\t".join(samples))
-    fo = open("lofreq_distribution.tsv", "w")
+    fo = open("mutation_distribution.tsv", "w")
     fo.write("ID\t%s\n" % "\t".join(samples))
 
     for i in indexs:
@@ -124,7 +141,9 @@ def merge_lofreq(files):
 def add_hlep_args(parser):
 
     parser.add_argument("input", nargs="+", metavar="FILE", type=str,
-        help="Input the snp result of lofreq analysis,(*.vcf)")
+        help="Input mutation rate statistics file.")
+    parser.add_argument("-f", "--freq", metavar="FLOAT", type=float, default=0,
+        help="Input the filtered mutation frequency(‰). freq=0")
 
     return parser
 
@@ -139,7 +158,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
     description='''
 For exmple:
-        merge_lofreq.py *.vcf > merge_lofreq_vcf.tsv
+        merge_mutation.py *.mutation.xls > merge_mutation.xls
 
 version: %s
 contact:  %s <%s>\
@@ -147,7 +166,7 @@ contact:  %s <%s>\
 
     args = add_hlep_args(parser).parse_args()
 
-    merge_lofreq(args.input)
+    merge_mutation(args.input, args.freq)
 
 
 if __name__ == "__main__":
